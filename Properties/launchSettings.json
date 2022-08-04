@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "steam_deck_status": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7073",
+      "launchBrowser": false
+    }
+  }
+}
