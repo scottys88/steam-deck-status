@@ -7,19 +7,30 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Microsoft.Extensions.Configuration;
 
 namespace SteamDeckStatus.Function
 {
-    public static class GetSteamDeckStatus
+    public class GetSteamDeckStatus
     {
+        private readonly IConfiguration _configuration;
+
+        public GetSteamDeckStatus(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+
         [FunctionName("GetSteamDeckStatus")]
-        public static async Task<IActionResult> Run(
+        public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
             ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
 
             string name = req.Query["name"];
+
+            // string cs = _configuration["ConnectionString"];
+            // string SteamDeckStatusUrl = _configuration["SteamDeckStatusUrl"];
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             dynamic data = JsonConvert.DeserializeObject(requestBody);
