@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Configuration;
+using System.Net.Http;
+using System.Net.Http.Json;
+using SteamDeckStatus.Models;
 
 namespace SteamDeckStatus.Function
 {
@@ -25,22 +28,45 @@ namespace SteamDeckStatus.Function
             [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
             ILogger log)
         {
-            log.LogInformation("C# HTTP trigger function processed a request.");
+            string SteamDeckStatusUrl = _configuration["SteamDeckStatusUrl"];
+            string cannotReserveSearchString = _configuration["CannotReserveString"];
 
-            string name = req.Query["name"];
+            try
+            {
+                var httpClient = new HttpClient();
 
-            // string cs = _configuration["ConnectionString"];
-            // string SteamDeckStatusUrl = _configuration["SteamDeckStatusUrl"];
+                var result = await httpClient.GetAsync(SteamDeckStatusUrl);
 
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            dynamic data = JsonConvert.DeserializeObject(requestBody);
-            name = name ?? data?.name;
+                if (result.IsSuccessStatusCode)
+                {
+                    var reservationResponseRoot = await result.Content.ReadFromJsonAsync<ReservationResponseRoot>();
+                    var reservationStatus = new ReservationStatus()
+                    {
+                        CanBeReserved = false
+                    };
 
-            string responseMessage = string.IsNullOrEmpty(name)
-                ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
-                : $"Hello, {name}. This HTTP triggered function executed successfully.";
+                    if (reservationResponseRoot?.strReservationMessage != null)
+                    {
+                        if (reservationResponseRoot.strReservationMessage.Contains(cannotReserveSearchString))
+                        {
+                            return new OkObjectResult(reservationStatus);
+                        }
 
-            return new OkObjectResult(responseMessage);
+                        reservationStatus.CanBeReserved = true;
+                        return new OkObjectResult(reservationStatus);
+                    }
+                }
+
+                return new BadRequestResult();
+
+            }
+            catch
+            {
+                return new BadRequestResult();
+
+            }
+
+
         }
     }
 }
