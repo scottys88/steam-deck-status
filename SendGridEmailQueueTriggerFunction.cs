@@ -26,7 +26,7 @@ namespace SteamDeckStatus.Function
                     From = new EmailAddress("scott_schubert@hotmail.com.au", "Steam Deck Status"),
                 };
                 sendGridMessage.AddTo("scott_schubert@hotmail.com.au");
-                sendGridMessage.SetSubject("Awesome Azure Function app");
+                sendGridMessage.SetSubject("Steam Deck Aus🦘 Reservation Status");
                 sendGridMessage.AddContent("text/html", emailBody);
             }
             catch (Exception ex)
