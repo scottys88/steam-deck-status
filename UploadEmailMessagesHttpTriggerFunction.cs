@@ -11,6 +11,7 @@ using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Queue;
 using Microsoft.Extensions.Configuration;
 using SteamDeckStatus.Models;
+using HandlebarsDotNet;
 
 namespace SteamDeckStatus.Function
 {
@@ -35,14 +36,16 @@ namespace SteamDeckStatus.Function
             dynamic data = JsonConvert.DeserializeObject(requestBody);
 
             canBeReserved = data?.CanBeReserved ?? canBeReserved;
-
+            
+            var htmlContent = GetHtmlContent(canBeReserved, context);
 
             string randomStr = Guid.NewGuid().ToString();
             var serializeJsonObject = JsonConvert.SerializeObject(
                                          new
                                          {
                                              ID = randomStr,
-                                             Content = $"<html><body><h2> Can the Steam Deck be reserved {canBeReserved.ToString()} </h2><p><a href='https://store.steampowered.com/steamdeck'>Reserve now</a></p></body></html>"
+                                             Content = htmlContent,
+                                             CanBeReserved = canBeReserved
                                          });
 
             CloudStorageAccount storageAccount = GetCloudStorageAccount(context);
@@ -54,6 +57,18 @@ namespace SteamDeckStatus.Function
 
 
             return new OkObjectResult("UploadEmailMessagesHttpTriggerFunction executed successfully!!");
+        }
+
+        private static string GetHtmlContent(bool canBeReserved, ExecutionContext context)
+        {
+            string htmlFilePath = Path.Combine(context.FunctionAppDirectory, "emailTemplate.hbs");
+            string messageTemplate = File.ReadAllText(htmlFilePath);
+
+
+            var template = Handlebars.Compile(messageTemplate);
+            var htmlContent = template(new { CanBeReserved = canBeReserved });
+
+            return htmlContent;
         }
 
         private static void CreateQueueIfNotExists(ILogger logger, ExecutionContext executionContext)

@@ -5,6 +5,7 @@
     <RootNamespace>steam_deck_status</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Handlebars.Net" Version="2.1.2" />
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
     <PackageReference Include="Microsoft.Azure.Webjobs" Version="3.0.33" />
     <PackageReference Include="Microsoft.Azure.Webjobs.Extensions.SendGrid" Version="3.0.2" />
@@ -13,6 +14,9 @@
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.1.1" />
   </ItemGroup>
   <ItemGroup>
+    <None Update="emailTemplate.hbs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="host.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
