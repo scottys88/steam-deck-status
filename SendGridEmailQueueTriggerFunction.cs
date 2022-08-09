@@ -20,13 +20,14 @@ namespace SteamDeckStatus.Function
 
                 dynamic jsonData = JObject.Parse(queueItem);
                 string emailBody = jsonData.Content;
+                bool canBeReserved = jsonData.CanBeReserved;
 
                 sendGridMessage = new SendGridMessage
                 {
                     From = new EmailAddress("scott_schubert@hotmail.com.au", "Steam Deck Status"),
                 };
                 sendGridMessage.AddTo("scott_schubert@hotmail.com.au");
-                sendGridMessage.SetSubject("Steam Deck Aus🦘 Reservation Status");
+                sendGridMessage.SetSubject($"Steam Deck Aus: {(canBeReserved ? "🎉 Ready for reservation 👯‍♂️" : "😒 Not ready for reservation 😒")}");
                 sendGridMessage.AddContent("text/html", emailBody);
             }
             catch (Exception ex)
