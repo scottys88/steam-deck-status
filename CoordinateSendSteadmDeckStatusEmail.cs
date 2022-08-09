@@ -24,7 +24,7 @@ namespace SteamDeckStatus.Function
         }
 
         [FunctionName("CoordinateSendSteadmDeckStatusEmail")]
-        public async Task Run([TimerTrigger("0 8 * * *")] TimerInfo myTimer, ILogger log, ExecutionContext executionContext)
+        public async Task Run([TimerTrigger("0 0 8 * * *")] TimerInfo myTimer, ILogger log, ExecutionContext executionContext)
         {
             var config = new ConfigurationBuilder().SetBasePath(executionContext.FunctionAppDirectory)
                                             .AddJsonFile("local.settings.json", true, true)
